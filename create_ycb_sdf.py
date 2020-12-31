@@ -24,7 +24,7 @@ downsample_ratio = 0.33
 ycb_folder = os.path.join("models", "ycb")
 template_folder = os.path.join("templates", "ycb")
 
-if __name__=="__main__":
+if __name__ == "__main__":
 
     print("Creating files to use YCB objects in Gazebo...")
 
@@ -35,11 +35,11 @@ if __name__=="__main__":
     config_template_file = os.path.join(template_folder, "model.config")
     model_template_file = os.path.join(template_folder, "template.sdf")
     material_template_file = os.path.join(template_folder, "template.material")
-    with open(config_template_file,"r") as f:
+    with open(config_template_file, "r") as f:
         config_template_text = f.read()
-    with open(model_template_file,"r") as f:
+    with open(model_template_file, "r") as f:
         model_template_text = f.read()
-    with open(material_template_file,"r") as f:
+    with open(material_template_file, "r") as f:
         material_template_text = f.read()
 
     # Now loop through all the folders
@@ -64,6 +64,8 @@ if __name__=="__main__":
                     mesh_file = os.path.join(model_folder, "google_16k", "textured.obj")
                 elif mesh_type == "tsdf":
                     mesh_file = os.path.join(model_folder, "tsdf", "textured.obj")
+                else:
+                    raise NotImplementedError
                 mesh = trimesh.load(mesh_file)
                 # Mass and moments of inertia
                 mass_text = str(mesh.mass)
@@ -74,10 +76,10 @@ if __name__=="__main__":
                 eul = trimesh.transformations.euler_from_matrix(np.linalg.inv(tf), axes="sxyz")
                 com_vec.extend(list(eul))
                 com_text = str(com_vec)
-                com_text = com_text.replace("[","")
-                com_text = com_text.replace("]","")
-                com_text = com_text.replace(",","")
-                
+                com_text = com_text.replace("[", "")
+                com_text = com_text.replace("]", "")
+                com_text = com_text.replace(",", "")
+
                 # Create a downsampled mesh file with a subset of vertices and faces
                 if downsample_ratio < 1:
                     mesh_pts = mesh.vertices.shape[0]
@@ -94,7 +96,7 @@ if __name__=="__main__":
                 config_text = config_template_text.replace("$MODEL_SHORT", model_short)
                 with open(os.path.join(model_folder, "model.config"), "w") as f:
                     f.write(config_text)
-            
+
                 # Copy and modify the model file template
                 model_text = model_template_text.replace("$MODEL_SHORT", model_short)
                 model_text = model_text.replace("$MODEL_LONG", model_long)
@@ -116,14 +118,16 @@ if __name__=="__main__":
                     texture_file = "texture_map.png"
                 elif mesh_type == "tsdf":
                     texture_file = "textured.png"
+                else:
+                    raise NotImplementedError
                 material_text = material_template_text.replace("$MODEL_SHORT", model_short)
                 material_text = material_text.replace("$MODEL_LONG", model_long)
                 material_text = material_text.replace("$MESH_TYPE", mesh_type)
                 material_text = material_text.replace("$TEXTURE_FILE", texture_file)
                 with open(os.path.join(model_folder, model_short + ".material"), "w") as f:
                     f.write(material_text)
-
             except:
                 print("Error processing {}. Textured mesh likely does not exist for this object.".format(folder))
 
     print("Done.")
+
