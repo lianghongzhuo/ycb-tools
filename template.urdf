@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<robot name="ROBOT_NAME">
+    <link name="obj_base_link">
+    </link>
+    <link name="ROBOT_NAME_link">
+        <visual>
+            <geometry>
+                <mesh scale="SCALE_FACTOR SCALE_FACTOR SCALE_FACTOR" filename="package://MESH_PATH"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="ROBOT_NAME_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <parent link="obj_base_link"/>
+        <child link="ROBOT_NAME_link"/>
+    </joint>
+</robot>
+
