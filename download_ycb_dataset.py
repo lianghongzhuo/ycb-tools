@@ -11,10 +11,12 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Modified to work with Python 3 by Sebastian Castro, 2020
-
+# Modified object list to download complete YCB objects by Hongzhuo Liang, 2020
+# Modified to extract rgbd files into a folder by Hongzhuo Liang, 2021
 import os
 import json
 # import urllib
+import sys
 from urllib.request import Request, urlopen
 
 # Define an output folder
@@ -37,17 +39,18 @@ objects_to_download = "all"
 # 'google_512k' contains google meshes with 512k vertices.
 # See the website for more details.
 # ["berkeley_rgbd", "berkeley_rgb_highres", "berkeley_processed", "google_16k", "google_64k", "google_512k"]
-files_to_download = ["berkeley_processed", "google_16k", "google_512k"]
+
+if len(sys.argv) == 2 and sys.argv[1] == "rgbd_512":
+    files_to_download = ["berkeley_rgbd", "google_512k"]
+else:
+    files_to_download = ["berkeley_processed", "google_16k", "google_512k"]
 
 # Extract all files from the downloaded .tgz, and remove .tgz files.
 # If false, will just download all .tgz files to output_directory
 extract = True
-
 base_url = "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/"
 objects_url = "https://ycb-benchmarks.s3.amazonaws.com/data/objects.json"
-
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
+os.makedirs(output_directory + "/tmp", exist_ok=True)
 
 
 def fetch_objects(url):
@@ -92,9 +95,18 @@ def tgz_url(obj, obj_type):
 
 def extract_tgz(filename, output_dir):
     """ Extract a TGZ file """
-    tar_command = "tar -xzf {filename} -C {dir}".format(filename=filename, dir=output_dir)
+    if "berkeley_rgbd" in filename:
+        output_dir += "/tmp"
+        tar_command = "tar -xzf {filename} -C {dir}".format(filename=filename, dir=output_dir)
+    else:
+        tar_command = "tar -xzf {filename} -C {dir}".format(filename=filename, dir=output_dir)
     os.system(tar_command)
     os.remove(filename)
+    if "berkeley_rgbd" in filename:
+        obj_name = filename[11:-18]
+        os.system(f"mv {output_dir}/{obj_name} {output_dir}/rgbd")
+        os.makedirs(f"{output_dir[:-4]}/{obj_name}", exist_ok=True)
+        os.system(f"mv {output_dir}/rgbd {output_dir[:-4]}/{obj_name}")
 
 
 def check_url(url):
