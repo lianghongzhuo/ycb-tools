@@ -3,6 +3,14 @@ Tools to download models from the [YCB dataset](https://www.ycbbenchmarks.com/) 
 
 By Sebastian Castro, 2020
 
+Note:
+- Some of the 512k objs are missing even if the [website](http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/)
+did not mark it as N/A. (Objects that are missing: 30, 31, 32, 62
+  63b, 72d, 72e, 76), you can download 16k or 64k instead.
+- Object 25 rgbd files has a different path (`/home/bcalli/Desktop`), so the
+  auto extract code not work for this object, you can move to correct place
+  manually.
+
 ![YCB Models in Gazebo](images/ycb_gazebo_inertia.png)
 
 ## Python Setup
